@@ -30,7 +30,7 @@ The local remotes are `origin` (SpookyV4) and `upstream` (VapeV4ForRoblox). The 
 | `tools/build-dev.js` | Local Node build entry point. |
 | `tools/bundler/helpers/` | Upstream VapeBundler helpers copied with attribution in `NOTICE.md`. |
 | `dev-build/` | Generated loader, main, libraries, GUI, assets, and place-ID game bundles. Commit this output after a source change. Do not edit it manually. |
-| `.github/workflows/build.yaml` | `dev` consistency check that rebuilds and requires committed `dev-build/` to match. |
+| `.github/workflows/build.yaml` | `dev` consistency check that rebuilds and requires committed `dev-build/` to match; GitHub Actions is currently disabled on this fork. |
 
 ## DEV loader and runtime flow
 
@@ -47,6 +47,8 @@ The upstream `newvape` filesystem naming remains intentionally. Cache paths incl
 ## Build process
 
 Upstream used `7GrandDadPGN/VapeBundler` plus a separate `VapeCompiled` repository. SpookyV4 keeps its adapted bundler helpers locally and writes output to `dev-build/` in the same repository. Run `node tools/build-dev.js` from any current directory. The script copies `src/loader.lua`, `src/main.lua`, and libraries; assembles GUI source and assets; and builds game bundles by place ID. Its generated files are checked into `dev`. Rebuild after editing source, then review and commit both source and output. The old upstream `VapeCompiled` repository is not used by the DEV loader.
+
+GitHub disabled Actions when the fork was created because upstream had a workflow. The `dev` branch contains a build consistency workflow, but it is not running yet. The untouched `main` branch still contains upstream's workflow that targets a separate compiled repository. Review that workflow and make an explicit repository-wide Actions decision before enabling workflows.
 
 ## BedWars map for later work
 

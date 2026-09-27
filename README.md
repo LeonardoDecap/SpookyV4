@@ -22,6 +22,8 @@ node tools/build-dev.js
 
 The build follows the upstream [VapeBundler](https://github.com/7GrandDadPGN/VapeBundler) layout using adapted local helpers. Do not edit `dev-build/` by hand. Commit source and regenerated output together. See [AI-HANDOFF.md](AI-HANDOFF.md) for the loader flow, branch policy, and BedWars file map.
 
+GitHub Actions is currently disabled by GitHub for this fork. The `dev` workflow is prepared to check generated output, but it will not run until Actions is enabled. Review the untouched upstream workflow on `main` before enabling Actions repository-wide.
+
 ## Starting development
 
 1. Clone this repository and check out `dev`.
