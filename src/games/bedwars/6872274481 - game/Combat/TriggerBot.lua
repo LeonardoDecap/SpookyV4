@@ -2,18 +2,20 @@ local TriggerBot
 local CPS
 local rayParams = RaycastParams.new()
 local diagTimes = {}
-local function combatDiag(stage, ...)
+local diagSeen = {}
+local function combatDiag(stage, detail)
 	local now = tick()
-	if now - (diagTimes[stage] or -math.huge) < 5 then return end
+	if diagSeen[stage] or now - (diagTimes[stage] or -math.huge) < 5 then return end
+	diagSeen[stage] = true
 	diagTimes[stage] = now
-	print('[SpookyV4 CombatDiag] TriggerBot', stage, ...)
+	vape:CreateNotification('SpookyV4 CombatDiag', 'TriggerBot: '..stage..(detail and ' - '..detail or ''), 5)
 end
 
 TriggerBot = vape.Categories.Combat:CreateModule({
 	Name = 'TriggerBot',
 	Function = function(callback)
 		if callback then
-			table.clear(diagTimes)
+			table.clear(diagSeen)
 			combatDiag('enabled')
 			repeat
 				local doAttack
@@ -37,10 +39,9 @@ TriggerBot = vape.Categories.Combat:CreateModule({
 							end
 						end
 
-						combatDiag(doAttack and 'ray target' or 'no ray target')
 						doAttack = doAttack or bedwars.SwordController:getTargetInRegion(attackRange or 3.8 * 3, 0)
 						if doAttack then
-							combatDiag('swingSwordAtMouse call', typeof(doAttack))
+							combatDiag('swingSwordAtMouse call')
 							bedwars.SwordController:swingSwordAtMouse()
 							combatDiag('swingSwordAtMouse returned')
 						else
@@ -48,7 +49,7 @@ TriggerBot = vape.Categories.Combat:CreateModule({
 						end
 					else
 						local chargingMaid = bedwars.DaoController and bedwars.DaoController.chargingMaid
-						combatDiag('eligibility gate', entitylib.isAlive, store.hand and store.hand.toolType, typeof(chargingMaid), tostring(chargingMaid))
+						combatDiag('eligibility gate', 'alive='..tostring(entitylib.isAlive)..', hand='..tostring(store.hand and store.hand.toolType)..', maid='..tostring(chargingMaid))
 					end
 				else
 					combatDiag('GUI gate')
