@@ -6,7 +6,7 @@ SpookyV4 is **not production-ready**. This setup task established the repository
 | --- | --- |
 | P0 | Verify the SpookyV4 DEV loader resolves the `dev` commit and starts its fork-owned runtime. |
 | P1 | Get current BedWars lobby and match runtime loading cleanly. The inherited intentional shutdown blocks were removed; verify the next observed runtime result. |
-| P2 | Repair startup-breaking outdated BedWars references and APIs based on observed errors. |
+| P2 | Verify the evidence-based `ProjectileController.enableBeam` offset lookup in a live match, then repair any further startup-breaking outdated BedWars references or APIs based on observed errors. |
 | P3 | Verify GUI and category initialization. |
 | P4 | Test modules category by category. |
 | P5 | Repair important BedWars features. |

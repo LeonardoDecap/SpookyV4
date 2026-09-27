@@ -64,6 +64,10 @@ BedWars source is under `src/games/bedwars/`:
 
 Generated match and lobby files are `dev-build/games/6872274481.lua` and `dev-build/games/6872265039.lua`. Edit source, then rebuild. The inherited shutdown blocks have been removed from both. Do not infer broader compatibility from a successful loader download or the absence of that kick.
 
+### ProjectileController startup investigation
+
+On DEV build `4bfd7ff6`, the match bundle stopped at the old `debug.getupvalue(ProjectileController.enableBeam, 8)` read with `index out of range`. A user-run read-only diagnostic in the live match reported upvalues 1–7; upvalue 5 was the only table with numeric `RelX`, `RelY`, and `RelZ` values (`0.8`, `-0.6`, `0`). The source now searches the available upvalues for exactly one table with those fields and fails with a clear error if there is none or more than one. This value is used by LongJump, ProjectileAimbot, and ProjectileAura. The change was based on that runtime evidence, but the updated build has not yet been tested in a live match. Do not infer that those modules or the rest of BedWars are compatible.
+
 ## First investigation for the next developer
 
 Start by verifying the public DEV loader can resolve its commit and download its fork-owned files. Then observe the first concrete lobby/match runtime result. Record the error and source mapping before changing BedWars code. Do not begin with a broad refactor or speculative controller/API index changes. No live Roblox smoke test was performed during infrastructure setup.

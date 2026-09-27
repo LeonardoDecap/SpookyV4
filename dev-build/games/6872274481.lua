@@ -659,6 +659,19 @@ run(function()
 	local InventoryUtil = require(replicatedStorage.TS.inventory['inventory-util']).InventoryUtil
 	local Client = require(replicatedStorage.TS.remotes).default.Client
 	local OldGet, OldBreak = Client.Get
+	local function findBowConstants(fn)
+		local result
+		for index = 1, 16 do
+			local success, value = pcall(debug.getupvalue, fn, index)
+			if not success then break end
+			if type(value) == 'table' and type(value.RelX) == 'number' and type(value.RelY) == 'number' and type(value.RelZ) == 'number' then
+				if result then error('ProjectileController.enableBeam has multiple offset tables') end
+				result = value
+			end
+		end
+		if not result then error('ProjectileController.enableBeam has no projectile offset table') end
+		return result
+	end
 
 	bedwars = setmetatable({
 		AbilityController = Flamework.resolveDependency('@easy-games/game-core:client/controllers/ability/ability-controller@AbilityController'),
@@ -671,7 +684,7 @@ run(function()
 		BlockController = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['block-engine'].out).BlockEngine,
 		BlockEngine = require(lplr.PlayerScripts.TS.lib['block-engine']['client-block-engine']).ClientBlockEngine,
 		BlockPlacer = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['block-engine'].out.client.placement['block-placer']).BlockPlacer,
-		BowConstantsTable = debug.getupvalue(Knit.Controllers.ProjectileController.enableBeam, 8),
+		BowConstantsTable = findBowConstants(Knit.Controllers.ProjectileController.enableBeam),
 		ClickHold = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['game-core'].out.client.ui.lib.util['click-hold']).ClickHold,
 		Client = Client,
 		ClientConstructor = require(replicatedStorage['rbxts_include']['node_modules']['@rbxts'].net.out.client),
