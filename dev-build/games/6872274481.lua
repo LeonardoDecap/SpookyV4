@@ -414,7 +414,7 @@ local kitorder = {
 
 local sortmethods = {
 	Damage = function(a, b)
-		return a.Entity.Character:GetAttribute('LastDamageTakenTime') < b.Entity.Character:GetAttribute('LastDamageTakenTime')
+		return (a.Entity.Character:GetAttribute('LastDamageTakenTime') or 0) < (b.Entity.Character:GetAttribute('LastDamageTakenTime') or 0)
 	end,
 	Threat = function(a, b)
 		return getStrength(a.Entity) > getStrength(b.Entity)
@@ -2033,10 +2033,17 @@ run(function()
 	local LegitAura
 	local Particles, Boxes = {}, {}
 	local anims, AnimDelay, AnimTween, armC0 = vape.Libraries.auraanims, tick()
-	local AttackRemote = {FireServer = function() end}
-	task.spawn(function()
-		AttackRemote = bedwars.Client:Get(remotes.AttackEntity).instance
-	end)
+	local animationPatches = {}
+	local function restoreAnimationUpvalues()
+		for _, patch in animationPatches do
+			if debug.getupvalue(patch.fn, patch.index) == patch.fake then
+				debug.setupvalue(patch.fn, patch.index, patch.original)
+			end
+		end
+		table.clear(animationPatches)
+	end
+	vape:Clean(restoreAnimationUpvalues)
+	local AttackRemote
 
 	local function getAttackData()
 		if Mouse.Enabled then
@@ -2066,6 +2073,10 @@ run(function()
 		Name = 'Killaura',
 		Function = function(callback)
 			if callback then
+				restoreAnimationUpvalues()
+				local remote = bedwars.Client:Get(remotes.AttackEntity)
+				AttackRemote = remote and remote.instance
+				if not AttackRemote then error('[SpookyV4 Killaura] AttackEntity remote unavailable') end
 				if inputService.TouchEnabled then
 					pcall(function()
 						lplr.PlayerGui.MobileUI['2'].Visible = Limit.Enabled
@@ -2073,6 +2084,10 @@ run(function()
 				end
 
 				if Animation.Enabled and not (identifyexecutor and table.find({'Argon', 'Delta'}, ({identifyexecutor()})[1])) then
+					local swordFn = oldSwing or bedwars.SwordController.playSwordEffect
+					local scytheFn = bedwars.ScytheController.playLocalAnimation
+					local swordOriginal = debug.getupvalue(swordFn, 6)
+					local scytheOriginal = debug.getupvalue(scytheFn, 3)
 					local fake = {
 						Controllers = {
 							ViewmodelController = {
@@ -2087,8 +2102,14 @@ run(function()
 							}
 						}
 					}
-					debug.setupvalue(oldSwing or bedwars.SwordController.playSwordEffect, 6, fake)
-					debug.setupvalue(bedwars.ScytheController.playLocalAnimation, 3, fake)
+					debug.setupvalue(swordFn, 6, fake)
+					table.insert(animationPatches, {fn = swordFn, index = 6, original = swordOriginal, fake = fake})
+					local patchedScythe, patchError = pcall(debug.setupvalue, scytheFn, 3, fake)
+					if not patchedScythe then
+						restoreAnimationUpvalues()
+						error(patchError)
+					end
+					table.insert(animationPatches, {fn = scytheFn, index = 3, original = scytheOriginal, fake = fake})
 
 					task.spawn(function()
 						local started = false
@@ -2105,7 +2126,7 @@ run(function()
 								end
 
 								for _, v in anims[AnimationMode.Value] do
-									AnimTween = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(first and (AnimationTween.Enabled and 0.001 or 0.1) or v.Time / AnimationSpeed.Value, Enum.EasingStyle.Linear), {
+									AnimTween = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(first and (AnimationTween.Enabled and 0.001 or 0.1) or v.Time / math.max(AnimationSpeed.Value, 0.1), Enum.EasingStyle.Linear), {
 										C0 = armC0 * v.CFrame
 									})
 									AnimTween:Play()
@@ -2224,6 +2245,7 @@ run(function()
 					task.wait(#attacked > 0 and #attacked * 0.02 or 1 / UpdateRate.Value)
 				until not Killaura.Enabled
 			else
+				restoreAnimationUpvalues()
 				store.KillauraTarget = nil
 				for _, v in Boxes do
 					v.Adornee = nil
@@ -2236,8 +2258,6 @@ run(function()
 						lplr.PlayerGui.MobileUI['2'].Visible = true
 					end)
 				end
-				debug.setupvalue(oldSwing or bedwars.SwordController.playSwordEffect, 6, bedwars.Knit)
-				debug.setupvalue(bedwars.ScytheController.playLocalAnimation, 3, bedwars.Knit)
 				Attacking = false
 				if armC0 then
 					AnimTween = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(AnimationTween.Enabled and 0.001 or 0.3, Enum.EasingStyle.Exponential), {
@@ -2458,7 +2478,7 @@ run(function()
 	})
 	AnimationSpeed = Killaura:CreateSlider({
 		Name = 'Animation Speed',
-		Min = 0,
+		Min = 0.1,
 		Max = 2,
 		Default = 1,
 		Decimal = 10,

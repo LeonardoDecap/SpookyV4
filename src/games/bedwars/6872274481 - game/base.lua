@@ -414,7 +414,7 @@ local kitorder = {
 
 local sortmethods = {
 	Damage = function(a, b)
-		return a.Entity.Character:GetAttribute('LastDamageTakenTime') < b.Entity.Character:GetAttribute('LastDamageTakenTime')
+		return (a.Entity.Character:GetAttribute('LastDamageTakenTime') or 0) < (b.Entity.Character:GetAttribute('LastDamageTakenTime') or 0)
 	end,
 	Threat = function(a, b)
 		return getStrength(a.Entity) > getStrength(b.Entity)
