@@ -1,8 +1,8 @@
-local run = function(func) 
-	func() 
+local run = function(func)
+	func()
 end
-local cloneref = cloneref or function(obj) 
-	return obj 
+local cloneref = cloneref or function(obj)
+	return obj
 end
 local playersService = cloneref(game:GetService('Players'))
 local inputService = cloneref(game:GetService('UserInputService'))

@@ -411,7 +411,7 @@ run(function()
 	local BlocksCPS = {Object = {}}
 	local Thread
 	local old
-	
+
 	local function AutoClick()
 		Thread = task.delay(1 / 8, function()
 			repeat
@@ -427,12 +427,12 @@ run(function()
 						skywars.MeleeController:strike(held)
 					end
 				end
-	
+
 				task.wait(1 / (held and held.Rewrite and BlocksCPS or CPS).GetRandomValue())
 			until not AutoClicker.Enabled
 		end)
 	end
-	
+
 	AutoClicker = vape.Categories.Combat:CreateModule({
 		Name = 'AutoClicker',
 		Function = function(callback)
@@ -442,7 +442,7 @@ run(function()
 						AutoClick()
 					end
 				end))
-	
+
 				AutoClicker:Clean(inputService.InputEnded:Connect(function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 and Thread then
 						task.cancel(Thread)
@@ -480,7 +480,7 @@ end)
 run(function()
 	local Sprint
 	local old
-	
+
 	Sprint = vape.Categories.Combat:CreateModule({
 		Name = 'Sprint',
 		Function = function(callback)
@@ -488,11 +488,11 @@ run(function()
 				old = skywars.SprintingController.disableSprinting
 				skywars.SprintingController.disableSprinting = function(tab, ...)
 					local data = old(tab, ...)
-	
+
 					if not tab.canSprint then
 						task.spawn(function()
 							repeat task.wait(0.1) until tab.canSprint or not Sprint.Enabled
-	
+
 							if Sprint.Enabled then
 								skywars.SprintingController:enableSprinting(tab)
 							end
@@ -500,14 +500,14 @@ run(function()
 					else
 						skywars.SprintingController:enableSprinting(tab)
 					end
-	
+
 					return data
 				end
-	
+
 				Sprint:Clean(entitylib.Events.LocalAdded:Connect(function()
 					skywars.SprintingController:disableSprinting()
 				end))
-	
+
 				skywars.SprintingController:disableSprinting()
 			else
 				skywars.SprintingController.disableSprinting = old
@@ -526,33 +526,33 @@ run(function()
 	local Targeting
 	local connection
 	local rand, old = Random.new()
-	
+
 	local function velocityFunction(...)
 		if rand:NextNumber(0, 100) > Chance.Value then return old(...) end
-	
+
 		local args = table.pack(...)
 		local check = (not Targeting.Enabled) or entitylib.EntityPosition({
 			Range = 50,
 			Part = 'RootPart',
 			Players = true
 		})
-	
+
 		if check then
 			local hort, vert = (Horizontal.Value / 100), (Vertical.Value / 100)
 			if hort == 0 and vert == 0 then return end
 			args[1] = Vector3.new(args[1].X * hort, args[1].Y * vert, args[1].Z * hort)
 		end
-	
+
 		return old(unpack(args, 1, args.n))
 	end
-	
+
 	Velocity = vape.Categories.Combat:CreateModule({
 		Name = 'Velocity',
 		Function = function(callback)
 			if callback then
 				connection = getconnections(debug.getupvalue(debug.getupvalue(skywars.Remotes[remotes['PlayerVelocityController:onStart']].connect, 1).fireClient, 1).OnClientEvent)[1]
 				if not connection then return end
-	
+
 				old = hookfunction(connection.Function, function(...)
 					return velocityFunction(...)
 				end)
@@ -595,7 +595,7 @@ run(function()
 	local Material
 	local Color
 	local part
-	
+
 	local function getLowGround()
 		local mag = math.huge
 		for pos in store.blocks do
@@ -605,7 +605,7 @@ run(function()
 		end
 		return mag
 	end
-	
+
 	AntiFall = vape.Categories.Blatant:CreateModule({
 		Name = 'AntiFall',
 		Function = function(callback)
@@ -658,8 +658,8 @@ run(function()
 		Name = 'Material',
 		List = materials,
 		Function = function(val)
-			if part then 
-				part.Material = Enum.Material[val] 
+			if part then
+				part.Material = Enum.Material[val]
 			end
 		end
 	})
@@ -678,7 +678,7 @@ end)
 run(function()
 	local InvMove
 	local old
-	
+
 	InvMove = vape.Categories.Blatant:CreateModule({
 		Name = 'InvMove',
 		Function = function(callback)
@@ -718,15 +718,15 @@ run(function()
 	local Attacking
 	local Particles, Boxes = {}, {}
 	local anims, armC0 = vape.Libraries.auraanims
-	
+
 	local function getAttackData()
 		if Mouse.Enabled then
 			if inputService:IsMouseButtonPressed(0) then return false end
 		end
-	
+
 		return (not Limit.Enabled) and store.tools.sword or store.hand
 	end
-	
+
 	Killaura = vape.Categories.Blatant:CreateModule({
 		Name = 'Killaura',
 		Function = function(callback)
@@ -740,11 +740,11 @@ run(function()
 									if not armC0 then armC0 = ViewmodelMotor.C0 end
 									local first = not started
 									started = true
-	
+
 									if AnimationMode.Value == 'Random' then
 										anims.Random = {{CFrame = CFrame.Angles(math.rad(math.random(1, 360)), math.rad(math.random(1, 360)), math.rad(math.random(1, 360))), Time = 0.12}}
 									end
-	
+
 									for _, v in anims[AnimationMode.Value] do
 										AnimTween = tweenService:Create(ViewmodelMotor, TweenInfo.new(first and (AnimationTween.Enabled and 0.001 or 0.1) or v.Time / AnimationSpeed.Value, Enum.EasingStyle.Linear), {
 											C0 = armC0 * v.CFrame
@@ -762,14 +762,14 @@ run(function()
 									AnimTween:Play()
 								end
 							end
-	
+
 							if not started then
 								task.wait(1 / 60)
 							end
 						until (not Killaura.Enabled) or (not Animation.Enabled)
 					end)
 				end
-	
+
 				repeat
 					local attacked = {}
 					local tool = getAttackData()
@@ -783,41 +783,41 @@ run(function()
 							Limit = Max.Value
 						})
 						local switched = false
-	
+
 						if #plrs > 0 then
 							local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
 							store.noShoot = tick() + 1
-	
+
 							for i, v in plrs do
 								local delta = (v.RootPart.Position - entitylib.character.RootPart.Position)
 								local angle = math.acos(localfacing:Dot((delta * Vector3.new(1, 0, 1)).Unit))
 								if angle > (math.rad(AngleCheck.Value) / 2) then continue end
 								table.insert(attacked, v)
 								targetinfo.Targets[v] = tick() + 1
-	
+
 								if not Swing.Enabled then
 									skywars.MeleeController:playAnimation(lplr.Character, tool)
 								end
-	
+
 								if not switched then
 									switched = true
 									skywars.Remotes[remotes.updateActiveItem]:fire(tool.Name)
 								end
-	
+
 								skywars.Remotes[remotes.strikeDesktop]:fire(v.Player)
 							end
 						end
-	
+
 						if switched then
 							skywars.Remotes[remotes.updateActiveItem](store.hand.Name)
 						end
 					end
-	
+
 					Attacking = #attacked > 0
 					if Attacking and vape.ThreadFix then
 						setthreadidentity(8)
 					end
-	
+
 					for i, v in Boxes do
 						v.Adornee = attacked[i] and attacked[i].RootPart or nil
 						if v.Adornee then
@@ -825,12 +825,12 @@ run(function()
 							v.Transparency = 1 - BoxAttackColor.Opacity
 						end
 					end
-	
+
 					for i, v in Particles do
 						v.Position = attacked[i] and attacked[i].RootPart.Position or Vector3.new(9e9, 9e9, 9e9)
 						v.Parent = attacked[i] and gameCamera or nil
 					end
-	
+
 					task.wait(0.05)
 				until not Killaura.Enabled
 			else
@@ -1041,7 +1041,7 @@ end)
 run(function()
 	local NoFall
 	local rayCheck = RaycastParams.new()
-	
+
 	NoFall = vape.Categories.Blatant:CreateModule({
 		Name = 'NoFall',
 		Function = function(callback)
@@ -1071,29 +1071,29 @@ end)
 
 run(function()
 	local old, oldcheck
-	
+
 	vape.Categories.Blatant:CreateModule({
 		Name = 'NoSlowdown',
 		Function = function(callback)
 			if callback then
 				old = skywars.HumanoidController.addSpeedModifier
 				oldcheck = skywars.SprintingController.setCanSprint
-	
+
 				skywars.HumanoidController.addSpeedModifier = function(self, index, speed)
 					speed = math.max(speed, 1)
 					return old(self, index, speed)
 				end
-	
+
 				skywars.SprintingController.setCanSprint = function(self, canSprint)
 					return oldcheck(self, true)
 				end
-	
+
 				for i, v in skywars.HumanoidController.speedModifiers do
 					if v < 1 then
 						skywars.HumanoidController:removeSpeedModifier(i)
 					end
 				end
-	
+
 				skywars.SprintingController:setCanSprint(true)
 				skywars.SprintingController:enableSprinting()
 			else
@@ -1113,7 +1113,7 @@ run(function()
 	local old, oldMobile
 	local rayCheck = RaycastParams.new()
 	rayCheck.FilterType = Enum.RaycastFilterType.Exclude
-	
+
 	local function aimFunction(...)
 		if store.hand and store.hand.Ranged then
 			local plr = entitylib.EntityMouse({
@@ -1121,23 +1121,23 @@ run(function()
 				Part = 'RootPart',
 				Players = true
 			})
-	
+
 			if plr then
 				rayCheck.FilterDescendantsInstances = {plr.Character, gameCamera}
 				rayCheck.CollisionGroup = plr[TargetPart.Value].CollisionGroup
 				local offsetpos = entitylib.character.RootPart.CFrame * skywars.FireOrigin
 				local calc = prediction.SolveTrajectory(offsetpos.Position, 200, math.abs(skywars.Gravity), plr[TargetPart.Value].Position, plr[TargetPart.Value].Velocity, workspace.Gravity, plr.HipHeight, nil, rayCheck)
-	
+
 				if calc then
 					targetinfo.Targets[plr] = tick() + 1
 					return CFrame.new(offsetpos.Position, calc).LookVector
 				end
 			end
 		end
-	
+
 		return old(...)
 	end
-	
+
 	local ProjectileAimbot = vape.Categories.Blatant:CreateModule({
 		Name = 'ProjectileAimbot',
 		Function = function(callback)
@@ -1145,7 +1145,7 @@ run(function()
 				old = hookfunction(skywars.CameraUtil.getCursorDirection, function(...)
 					return aimFunction(...)
 				end)
-	
+
 				oldMobile = hookfunction(skywars.CameraUtil.getDirection, function(...)
 					return aimFunction(...)
 				end)
@@ -1178,7 +1178,7 @@ run(function()
 	local rayCheck = RaycastParams.new()
 	rayCheck.FilterType = Enum.RaycastFilterType.Exclude
 	local FireDelays = {}
-	
+
 	local function getProjectiles()
 		local items = {}
 		for slot, item in store.inventory do
@@ -1189,7 +1189,7 @@ run(function()
 		end
 		return items
 	end
-	
+
 	ProjectileAura = vape.Categories.Blatant:CreateModule({
 		Name = 'ProjectileAura',
 		Function = function(callback)
@@ -1202,7 +1202,7 @@ run(function()
 						NPCs = Targets.NPCs.Enabled,
 						Wallcheck = Targets.Walls.Enabled
 					})
-	
+
 					if ent then
 						local offsetpos = entitylib.character.RootPart.CFrame * skywars.FireOrigin
 						for _, item in getProjectiles() do
@@ -1210,7 +1210,7 @@ run(function()
 								rayCheck.FilterDescendantsInstances = {ent.Character, gameCamera}
 								rayCheck.CollisionGroup = ent.RootPart.CollisionGroup
 								local calc = prediction.SolveTrajectory(offsetpos.Position, 200, math.abs(skywars.Gravity), ent.RootPart.Position, ent.RootPart.Velocity, workspace.Gravity, ent.HipHeight, nil, rayCheck)
-	
+
 								if calc then
 									targetinfo.Targets[ent] = tick() + 1
 									FireDelays[item] = tick() + 0.5
@@ -1222,7 +1222,7 @@ run(function()
 							end
 						end
 					end
-	
+
 					task.wait(0.1)
 				until not ProjectileAura.Enabled
 			end
@@ -1256,7 +1256,7 @@ run(function()
 	local Diagonal
 	local LimitItem
 	local adjacent, lastpos = {}, Vector3.zero
-	
+
 	for x = -3, 3, 3 do
 		for y = -3, 3, 3 do
 			for z = -3, 3, 3 do
@@ -1264,14 +1264,14 @@ run(function()
 				if vec.Y ~= 0 and (vec.X ~= 0 or vec.Z ~= 0) then
 					continue
 				end
-	
+
 				if vec ~= Vector3.zero then
 					table.insert(adjacent, vec)
 				end
 			end
 		end
 	end
-	
+
 	local function getBlocksInPoints(s, e)
 		local list = {}
 		for x = s.X, e.X, 3 do
@@ -1286,11 +1286,11 @@ run(function()
 		end
 		return list
 	end
-	
+
 	local function roundPos(vec)
 		return Vector3.new(math.round(vec.X / 3) * 3, math.round(vec.Y / 3) * 3, math.round(vec.Z / 3) * 3)
 	end
-	
+
 	local function nearCorner(poscheck, pos)
 		local startpos = poscheck - Vector3.new(3, 3, 3)
 		local endpos = poscheck + Vector3.new(3, 3, 3)
@@ -1298,14 +1298,14 @@ run(function()
 		if math.abs(check.Y - startpos.Y) > 3 then
 			return Vector3.new(poscheck.X, math.clamp(check.Y, startpos.Y, endpos.Y), poscheck.Z)
 		end
-	
+
 		return Vector3.new(math.clamp(check.X, startpos.X, endpos.X), math.clamp(check.Y, startpos.Y, endpos.Y), math.clamp(check.Z, startpos.Z, endpos.Z))
 	end
-	
+
 	local function blockProximity(pos)
 		local mag, returned = 60
 		local tab = getBlocksInPoints(pos - Vector3.new(21, 21, 21), pos + Vector3.new(21, 21, 21))
-	
+
 		for _, v in tab do
 			local blockpos = nearCorner(v, pos)
 			local newmag = (pos - blockpos).Magnitude
@@ -1313,25 +1313,25 @@ run(function()
 				mag, returned = newmag, blockpos
 			end
 		end
-	
+
 		table.clear(tab)
 		return returned
 	end
-	
+
 	local function checkAdjacent(pos)
 		for _, v in adjacent do
 			if store.blocks[pos + v] then return true end
 		end
 		return false
 	end
-	
+
 	local function getBlock()
 		for slot, item in store.inventory do
 			item = skywars.ItemMeta[item.Type]
 			if item.Rewrite then return item, slot end
 		end
 	end
-	
+
 	Scaffold = vape.Categories.Utility:CreateModule({
 		Name = 'Scaffold',
 		Function = function(callback)
@@ -1344,7 +1344,7 @@ run(function()
 							if Tower.Enabled and inputService:IsKeyDown(Enum.KeyCode.Space) and (not inputService:GetFocusedTextBox()) then
 								root.Velocity = Vector3.new(root.Velocity.X, 38, root.Velocity.Z)
 							end
-	
+
 							for i = Expand.Value, 1, -1 do
 								local currentpos = roundPos(root.Position - Vector3.new(0, entitylib.character.HipHeight + (Downwards.Enabled and inputService:IsKeyDown(Enum.KeyCode.LeftShift) and 4.5 or 1.5), 0) + entitylib.character.Humanoid.MoveDirection * (i * 3))
 								if Diagonal.Enabled then
@@ -1355,7 +1355,7 @@ run(function()
 										end
 									end
 								end
-	
+
 								local block = store.blocks[currentpos]
 								if not block then
 									blockpos = checkAdjacent(currentpos) and currentpos or blockProximity(currentpos)
@@ -1368,7 +1368,7 @@ run(function()
 							end
 						end
 					end
-	
+
 					task.wait(0.03)
 				until not Scaffold.Enabled
 			end
@@ -1401,18 +1401,18 @@ run(function()
 	local BreakerPart
 	local BreakerUI
 	local BreakerRef = skywars.Roact.createRef()
-	
+
 	local function clean()
 		if not BreakerUI then return end
 		if BreakerPart then
 			BreakerPart:Destroy()
 		end
-	
+
 		skywars.Roact.unmount(BreakerUI)
 		BreakerUI = nil
 		BreakerPart = nil
 	end
-	
+
 	local function customHealthbar(block, health, maxHealth, changeHealth)
 		if not BreakerPart then
 			local create = skywars.Roact.createElement
@@ -1426,7 +1426,7 @@ run(function()
 			part.CanCollide = false
 			part.Parent = workspace
 			BreakerPart = part
-	
+
 			BreakerUI = skywars.Roact.mount(create('BillboardGui', {
 				Size = UDim2.fromOffset(249, 102),
 				StudsOffset = Vector3.new(0, 2.5, 0),
@@ -1485,16 +1485,16 @@ run(function()
 					})
 				})
 			}), part)
-	
+
 			task.delay(5, clean)
 		end
-	
+
 		local progress = math.clamp((health - changeHealth) / maxHealth, 0, 1)
 		if progress == 0 then
 			clean()
 			return
 		end
-	
+
 		task.delay(0, function()
 			local val = BreakerRef:getValue()
 			if val then
@@ -1505,7 +1505,7 @@ run(function()
 			end
 		end)
 	end
-	
+
 	Breaker = vape.Categories.World:CreateModule({
 		Name = 'Breaker',
 		Function = function(callback)
@@ -1513,7 +1513,7 @@ run(function()
 				local eggs = collection('egg', Breaker)
 				local currentblock
 				local oldblockhealth = 0
-	
+
 				repeat
 					if entitylib.isAlive and store.hand then
 						local localPosition = entitylib.character.RootPart.Position
@@ -1525,15 +1525,15 @@ run(function()
 									oldblockhealth = hp
 									currentblock = v
 								end
-	
+
 								if hp ~= oldblockhealth then
 									customHealthbar(v, oldblockhealth, 100, oldblockhealth - hp)
 									oldblockhealth = hp
 								end
-	
+
 								store.noShoot = tick() + 1
 								if hp <= 0 then continue end
-	
+
 								if store.hand.Melee then
 									skywars.Remotes[remotes['MeleeController:attemptStrikeDesktop']]:fire(v)
 								elseif store.hand.Pickaxe then
@@ -1542,7 +1542,7 @@ run(function()
 							end
 						end
 					end
-	
+
 					task.wait(0.016)
 				until not Breaker.Enabled
 			end
@@ -1565,7 +1565,7 @@ run(function()
 	local Range
 	local Open
 	local Delay = {}
-	
+
 	ChestSteal = vape.Categories.World:CreateModule({
 		Name = 'ChestSteal',
 		Function = function(callback)
@@ -1573,15 +1573,15 @@ run(function()
 				local chests = collection('block:chest', ChestSteal)
 				ChestSteal:Clean(skywars.Remotes[remotes['ChestController:onStart']]:connect(function(self, items)
 					if Delay[self] then return end
-	
+
 					for _, item in items do
 						skywars.Remotes[remotes.updateChest]:fire(self, item.Type, -item.Quantity)
 					end
-	
+
 					skywars.Remotes[remotes.closeChest]:fire(self)
 					Delay[self] = true
 				end))
-	
+
 				repeat
 					if entitylib.isAlive and not Open.Enabled then
 						local localPosition = entitylib.character.RootPart.Position
@@ -1591,7 +1591,7 @@ run(function()
 							end
 						end
 					end
-	
+
 					task.wait(0.1)
 				until not ChestSteal.Enabled
 			end
@@ -1618,13 +1618,13 @@ run(function()
 	local Upgrades
 	local UpgradeObjects = {}
 	local Functions = {}
-	
+
 	local function buyCheck(currencytable)
 		for _, v in Functions do
 			v(currencytable)
 		end
 	end
-	
+
 	local function buyUpgrade(name, upgrade, currencytable)
 		local currentitem
 		for shopIndex, shopItem in upgrade.Items do
@@ -1632,9 +1632,9 @@ run(function()
 				currentitem = shopIndex
 			end
 		end
-	
+
 		if not currentitem then return end
-	
+
 		for i = currentitem + 1, #upgrade.Items do
 			local nextitem = upgrade.Items[i]
 			if nextitem and currencytable[nextitem.CurrencyType] >= nextitem.Price then
@@ -1643,7 +1643,7 @@ run(function()
 			end
 		end
 	end
-	
+
 	local function buyTeamUpgrade(upgrade, currencytable)
 		local currentitem = skywars.Store:getState().TeamUpgrades[upgrade.Name] or 0
 		for i = currentitem + 1, #upgrade.Tiers do
@@ -1654,7 +1654,7 @@ run(function()
 			end
 		end
 	end
-	
+
 	AutoBuy = vape.Categories.Inventory:CreateModule({
 		Name = 'AutoBuy',
 		Function = function(callback)
@@ -1724,7 +1724,7 @@ end)
 
 run(function()
 	local AutoConsume
-	
+
 	local function consumeCheck()
 		if (lplr:GetAttribute('Shield') or 0) <= 0 and getItem('Shield') then
 			skywars.Remotes[remotes.updateActiveItem]:fire('Shield')
@@ -1732,7 +1732,7 @@ run(function()
 			skywars.Remotes[remotes.updateActiveItem]:fire(store.hand.Name)
 		end
 	end
-	
+
 	AutoConsume = vape.Categories.Inventory:CreateModule({
 		Name = 'AutoConsume',
 		Function = function(callback)
@@ -1749,10 +1749,10 @@ end)
 run(function()
 	local Viewmodel
 	local oldtool
-	
+
 	local function newCharacter(char)
 		Viewmodel:Clean(char.Character.ChildAdded:Connect(function(obj)
-			if obj:IsA('Tool') then 
+			if obj:IsA('Tool') then
 				oldtool = obj
 				ViewmodelTool = oldtool.Handle:Clone()
 				ViewmodelTool.CanCollide = false
@@ -1764,36 +1764,36 @@ run(function()
 				oldtool.Handle.LocalTransparencyModifier = 1
 			end
 		end))
-		
+
 		Viewmodel:Clean(char.Character.ChildRemoved:Connect(function(obj)
-			if obj == oldtool then 
+			if obj == oldtool then
 				ViewmodelTool:Destroy()
 				ViewmodelTool = nil
 				oldtool = nil
 			end
 		end))
 	end
-	
+
 	Viewmodel = vape.Legit:CreateModule({
 		Name = 'Viewmodel',
 		Function = function(callback)
-			if callback then 
+			if callback then
 				ViewmodelMotor = Instance.new('Motor6D')
 				vape:Clean(ViewmodelMotor)
 				vape:Clean(runService.RenderStepped:Connect(function()
-					if ViewmodelTool then 
+					if ViewmodelTool then
 						local dcf = ((CFrame.new(2.06, -2.44, -2.24) * CFrame.new(0.6, -0.2, -0.6)) * CFrame.Angles(math.rad(99), math.rad(2), math.rad(-4))) * ViewmodelMotor.C0
 						local offsetcf = (CFrame.new(0, -0.15, -1.56) * CFrame.Angles(math.rad(-90), math.rad(-90), 0))
 						ViewmodelTool.CFrame = ((gameCamera.CFrame * dcf) * offsetcf)
 					end
 				end))
 				vape:Clean(entitylib.Events.LocalAdded:Connect(newCharacter))
-				if entitylib.isAlive then 
-					newCharacter(entitylib.character) 
+				if entitylib.isAlive then
+					newCharacter(entitylib.character)
 				end
 			else
-				if ViewmodelTool then 
-					ViewmodelTool:Destroy() 
+				if ViewmodelTool then
+					ViewmodelTool:Destroy()
 				end
 			end
 		end,

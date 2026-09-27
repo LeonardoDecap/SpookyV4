@@ -110,7 +110,7 @@ end
 run(function()
 	local AutoClicker
 	local CPS
-	
+
 	AutoClicker = vape.Categories.Combat:CreateModule({
 		Name = 'AutoClicker',
 		Function = function(callback)
@@ -120,7 +120,7 @@ run(function()
 					if tool and inputService:IsMouseButtonPressed(0) then
 						tool:Activate()
 					end
-	
+
 					task.wait(1 / CPS.GetRandomValue())
 				until not AutoClicker.Enabled
 			end
@@ -138,7 +138,7 @@ end)
 
 run(function()
 	--[[local old
-	
+
 	vape.Categories.Combat:CreateModule({
 		Name = 'Reach',
 		Function = function(callback)
@@ -164,32 +164,32 @@ run(function()
 	local Targeting
 	local old
 	local connection
-	
+
 	local function velocityFunction(velo, ...)
 		if Random.new():NextNumber(0, 100) > Chance.Value then return old(velo, ...) end
-	
+
 		local check = (not Targeting.Enabled) or entitylib.EntityPosition({
 			Range = 50,
 			Part = 'RootPart',
 			Players = true
 		})
-	
+
 		if check then
 			local hort, vert = (Horizontal.Value / 100), (Vertical.Value / 100)
 			if hort == 0 and vert == 0 then return end
 			velo = Vector3.new(velo.X * hort, velo.Y * vert, velo.Z * hort)
 		end
-	
+
 		return old(velo, ...)
 	end
-	
+
 	Velocity = vape.Categories.Combat:CreateModule({
 		Name = 'Velocity',
 		Function = function(callback)
 			if callback then
 				connection = getconnections(bd.CombatService.KnockBackApplied._re.OnClientEvent)[1]
 				if not connection then return end
-	
+
 				old = hookfunction(connection.Function, function(...)
 					return velocityFunction(...)
 				end)
@@ -228,7 +228,7 @@ end)
 
 run(function()
 	local old
-	
+
 	vape.Categories.Blatant:CreateModule({
 		Name = 'Criticals',
 		Function = function(callback)
@@ -238,7 +238,7 @@ run(function()
 					if type(data) == 'table' then
 						rawset(data, 'is_crit', true)
 					end
-	
+
 					return old(...)
 				end)
 			else
@@ -252,7 +252,7 @@ end)
 
 run(function()
 	local old
-	
+
 	vape.Categories.Blatant:CreateModule({
 		Name = 'InvMove',
 		Function = function(callback)
@@ -261,10 +261,10 @@ run(function()
 					if select(2, ...) == 'MenuOpen' then
 						return
 					end
-	
+
 					return old(...)
 				end)
-	
+
 				bd.MovementController:RemoveSpeedOverride('MenuOpen')
 			else
 				if old then
@@ -298,7 +298,7 @@ run(function()
 	local LegitAura
 	local Particles, Boxes, AttackDelay, SwingDelay, ClickDelay = {}, {}, tick(), tick(), tick()
 	local lMouse = cloneref(lplr:GetMouse())
-	
+
 	local function getAttackData()
 		if Mouse.Enabled then
 			if not inputService:IsMouseButtonPressed(0) then return false end
@@ -306,10 +306,10 @@ run(function()
 		if LegitAura.Enabled then
 			if ClickDelay < tick() then return false end
 		end
-	
+
 		return getTool()
 	end
-	
+
 	Killaura = vape.Categories.Blatant:CreateModule({
 		Name = 'Killaura',
 		Function = function(callback)
@@ -321,11 +321,11 @@ run(function()
 						end
 					end))
 				end
-	
+
 				repeat
 					local tool = getAttackData()
 					local attacked = {}
-	
+
 					if tool and tool:HasTag('Sword') then
 						local plrs = entitylib.AllPosition({
 							Range = SwingRange.Value,
@@ -335,15 +335,15 @@ run(function()
 							NPCs = Targets.NPCs.Enabled,
 							Limit = Max.Value
 						})
-	
+
 						if #plrs > 0 then
 							local selfpos = entitylib.character.RootPart.Position
 							local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
-	
+
 							if AutoBlock.Enabled and not bd.Entity.LocalEntity.IsBlocking then
 								firesignal(lMouse.Button2Down)
 							end
-	
+
 							for _, v in plrs do
 								local delta = (v.RootPart.Position - selfpos)
 								local angle = math.acos(localfacing:Dot((delta * Vector3.new(1, 0, 1)).Unit))
@@ -356,11 +356,11 @@ run(function()
 								if Block.Enabled then
 									if bd.Entity.LocalEntity.IsBlocking then continue end
 								end
-	
+
 								if not Swing.Enabled and SwingDelay < tick() then
 									SwingDelay = tick() + 0.25
 									entitylib.character.Humanoid.Animator:LoadAnimation(tool.Animations.Swing):Play()
-	
+
 									if vape.ThreadFix then
 										setthreadidentity(2)
 									end
@@ -369,7 +369,7 @@ run(function()
 										setthreadidentity(8)
 									end
 								end
-	
+
 								if delta.Magnitude > AttackRange.Value then continue end
 								if AttackDelay < tick() then
 									AttackDelay = tick() + (1 / CPS.GetRandomValue())
@@ -395,7 +395,7 @@ run(function()
 							end
 						end
 					end
-	
+
 					for i, v in Boxes do
 						v.Adornee = attacked[i] and attacked[i].Entity.RootPart or nil
 						if v.Adornee then
@@ -403,12 +403,12 @@ run(function()
 							v.Transparency = 1 - attacked[i].Check.Opacity
 						end
 					end
-	
+
 					for i, v in Particles do
 						v.Position = attacked[i] and attacked[i].Entity.RootPart.Position or Vector3.new(9e9, 9e9, 9e9)
 						v.Parent = attacked[i] and gameCamera or nil
 					end
-	
+
 					task.wait()
 				until not Killaura.Enabled
 			else
@@ -611,11 +611,11 @@ end)
 
 run(function()
 	local old
-	
+
 	vape.Categories.Blatant:CreateModule({
 		Name = 'NoFall',
 		Function = function(callback)
-			if callback then 
+			if callback then
 				old = hookfunction(bd.Blink.player_state.take_fall_damage.fire, function() end)
 			else
 				hookfunction(bd.Blink.player_state.take_fall_damage.fire, old)
@@ -628,12 +628,12 @@ end)
 
 run(function()
 	local old
-	
+
 	vape.Categories.Blatant:CreateModule({
 		Name = 'NoSlowdown',
 		Function = function(callback)
 			local func = debug.getproto(bd.MovementController.KnitStart, 7)
-	
+
 			if callback then
 				old = debug.getconstants(func)
 				for i, v in old do
@@ -658,29 +658,29 @@ run(function()
 	local old
 	local rayCheck = RaycastParams.new()
 	rayCheck.FilterType = Enum.RaycastFilterType.Exclude
-	
+
 	local function aimFunction(...)
 		local plr = entitylib.EntityMouse({
 	        Range = FOV.Value,
 	        Part = 'RootPart',
 	        Players = true
 	    })
-	
+
 	    if plr then
 	        rayCheck.FilterDescendantsInstances = {plr.Character, gameCamera}
 	        rayCheck.CollisionGroup = plr[TargetPart.Value].CollisionGroup
 	        local offsetpos = entitylib.character.Head.CFrame
 	        local calc = prediction.SolveTrajectory(offsetpos.Position, 180, 60, plr[TargetPart.Value].Position, plr[TargetPart.Value].Velocity, workspace.Gravity, plr.HipHeight, nil, rayCheck)
-	
+
 	        if calc then
 	            targetinfo.Targets[plr] = tick() + 1
 	            return offsetpos.Position + CFrame.new(offsetpos.Position, calc).LookVector * 100
 	        end
 	    end
-	
+
 		return old(...)
 	end
-	
+
 	local ProjectileAimbot = vape.Categories.Blatant:CreateModule({
 		Name = 'ProjectileAimbot',
 		Function = function(callback)
@@ -710,7 +710,7 @@ end)
 run(function()
 	local AutoPlay
 	local Delay
-	
+
 	AutoPlay = vape.Categories.Utility:CreateModule({
 		Name = 'AutoPlay',
 		Function = function(callback)
@@ -734,7 +734,7 @@ run(function()
 	local Diagonal
 	local LimitItem
 	local adjacent, lastpos = {}, Vector3.zero
-	
+
 	for x = -3, 3, 3 do
 		for y = -3, 3, 3 do
 			for z = -3, 3, 3 do
@@ -742,14 +742,14 @@ run(function()
 				if vec.Y ~= 0 and (vec.X ~= 0 or vec.Z ~= 0) then
 					continue
 				end
-	
+
 				if vec ~= Vector3.zero then
 					table.insert(adjacent, vec)
 				end
 			end
 		end
 	end
-	
+
 	local function getBlocksInPoints(s, e)
 		local list = {}
 		for x = s.X, e.X, 3 do
@@ -764,11 +764,11 @@ run(function()
 		end
 		return list
 	end
-	
+
 	local function roundPos(vec)
 		return Vector3.new(math.round(vec.X / 3) * 3, math.round(vec.Y / 3) * 3, math.round(vec.Z / 3) * 3)
 	end
-	
+
 	local function nearCorner(poscheck, pos)
 		local startpos = poscheck - Vector3.new(3, 3, 3)
 		local endpos = poscheck + Vector3.new(3, 3, 3)
@@ -778,7 +778,7 @@ run(function()
 		end
 		return Vector3.new(math.clamp(check.X, startpos.X, endpos.X), math.clamp(check.Y, startpos.Y, endpos.Y), math.clamp(check.Z, startpos.Z, endpos.Z))
 	end
-	
+
 	local function blockProximity(pos)
 		local mag, returned = 60
 		local tab = getBlocksInPoints(pos - Vector3.new(21, 21, 21), pos + Vector3.new(21, 21, 21))
@@ -792,21 +792,21 @@ run(function()
 		table.clear(tab)
 		return returned
 	end
-	
+
 	local function checkAdjacent(pos)
 		for _, v in adjacent do
 			if store.blocks[pos + v] then return true end
 		end
 		return false
 	end
-	
+
 	local function getBlock()
 		local tool = getTool()
 		if tool and tool:HasTag('Blocks') then
 			local btype = tool.Name == 'Blocks' and 'Clay' or tool.Name:sub(1, -6)
 			return btype, btype == 'Clay' and 'Blocks' or ("%*Block"):format(btype)
 		end
-	
+
 		if LimitItem.Enabled then return end
 		for _, tool in lplr.Backpack:GetChildren() do
 			if tool:IsA('Tool') and tool:HasTag('Blocks') then
@@ -815,7 +815,7 @@ run(function()
 			end
 		end
 	end
-	
+
 	Scaffold = vape.Categories.Utility:CreateModule({
 		Name = 'Scaffold',
 		Function = function(callback)
@@ -823,13 +823,13 @@ run(function()
 				repeat
 					if entitylib.isAlive then
 						local btype, bname = getBlock()
-	
+
 						if btype then
 							local root = entitylib.character.RootPart
 							if Tower.Enabled and inputService:IsKeyDown(Enum.KeyCode.Space) and (not inputService:GetFocusedTextBox()) then
 								root.Velocity = Vector3.new(root.Velocity.X, 38, root.Velocity.Z)
 							end
-	
+
 							for i = Expand.Value, 1, -1 do
 								local currentpos = roundPos(root.Position - Vector3.new(0, entitylib.character.HipHeight + (Downwards.Enabled and inputService:IsKeyDown(Enum.KeyCode.LeftShift) and 4.5 or 1.5), 0) + entitylib.character.Humanoid.MoveDirection * (i * 3))
 								if Diagonal.Enabled then
@@ -840,7 +840,7 @@ run(function()
 										end
 									end
 								end
-	
+
 								local block = store.blocks[currentpos]
 								if not block then
 									blockpos = checkAdjacent(currentpos) and currentpos or blockProximity(currentpos)
@@ -853,7 +853,7 @@ run(function()
 										fake.Parent = workspace.Map
 										bd.EffectsController:PlaySound(blockpos)
 										bd.Entity.LocalEntity:RemoveTool(bname, 1)
-	
+
 										task.spawn(function()
 											local suc, block = bd.Blink.item_action.place_block.invoke({
 												position = blockpos,
@@ -906,7 +906,7 @@ run(function()
 	local Breaker
 	local Value
 	local OnlyPlayer
-	
+
 	local function getBlocksInPoints(s, e)
 		local list = {}
 		for x = s.X, e.X, 3 do
@@ -921,7 +921,7 @@ run(function()
 		end
 		return list
 	end
-	
+
 	local function getPickaxe()
 		for name in bd.Entity.LocalEntity.Inventory do
 			if name:find('Pickaxe') then
@@ -929,7 +929,7 @@ run(function()
 			end
 		end
 	end
-	
+
 	Breaker = vape.Categories.World:CreateModule({
 		Name = 'Breaker',
 		Function = function(callback)
@@ -937,24 +937,24 @@ run(function()
 				local breakBlock
 				local breakTime = 0
 				local lastBreak
-	
+
 				repeat
 					breakBlock = nil
-	
+
 					if entitylib.isAlive then
 						local pickaxe = getPickaxe()
-	
+
 						if pickaxe then
 							local pos = (entitylib.character.RootPart.Position // 3) * 3
 							local rvec = Vector3.new(3, 3, 3) * Range.Value
-	
+
 							for blockpos, block in getBlocksInPoints(pos - rvec, pos + rvec) do
 								if block and block.Name == 'Block' and (block.Parent.Name == 'Bed' and lplr.Team and block.Parent:GetAttribute('Team') ~= lplr.Team.Name) then
 									breakBlock = block
 									break
 								end
 							end
-	
+
 							if breakBlock ~= lastBreak then
 								if breakBlock then
 									breakTime = os.clock() + bd.BreakTimes[breakBlock:GetAttribute('block_type') or 'Clay']
@@ -973,7 +973,7 @@ run(function()
 							end
 						end
 					end
-	
+
 					task.wait(1 / 60)
 				until not Breaker.Enabled
 			end
@@ -1001,11 +1001,11 @@ run(function()
 	local Functions = {}
 	local Callbacks = {Functions}
 	local npctick = tick()
-	
+
 	local function canBuy(item, currencytable, amount)
 		return (currencytable[item.currency or 'Iron'] or 0) >= (item.cost * (amount or 1))
 	end
-	
+
 	local function buyItem(item, itemTier, itemCategory, currencytable)
 		notif('AutoBuy', 'Bought '..item.name, 3)
 		task.spawn(function()
@@ -1016,7 +1016,7 @@ run(function()
 		end)
 		currencytable[item.currency or 'Iron'] -= item.cost
 	end
-	
+
 	local function buyTier(category, currencytable)
 		local nextItem, itemTier
 		for i, v in category.tiers do
@@ -1025,22 +1025,22 @@ run(function()
 				break
 			end
 		end
-	
+
 		if nextItem and canBuy(nextItem, currencytable) then
 			buyItem(nextItem, nextTier, category.name, currencytable)
 		end
 	end
-	
+
 	local function buyUpgrade(upgrade, currencytable)
 		local upgradeItem = bd.BedwarsUpgrades[upgrade]
 		local localTeam = bd.Entity.LocalEntity.Team or {Name = ''}
 		local teamUpgrades = bd.Communication.team_upgrades.value[localTeam.Name] or {}
 		local currentTier = (teamUpgrades[upgrade] or 0) + 1
 		local bought = false
-	
+
 		for i = currentTier, #upgradeItem.tiers do
 			local tier = upgradeItem.tiers[i]
-	
+
 			if canBuy({currency = 'Diamond', cost = tier.cost}, currencytable) then
 				notif('AutoBuy', 'Bought '..upgrade..' '..i, 3)
 				task.spawn(function()
@@ -1052,10 +1052,10 @@ run(function()
 				break
 			end
 		end
-	
+
 		return bought
 	end
-	
+
 	local function getShopNPC()
 		local shop, items, upgrades, newid = nil, false, false, nil
 		if entitylib.isAlive then
@@ -1070,7 +1070,7 @@ run(function()
 		end
 		return shop, items, upgrades
 	end
-	
+
 	AutoBuy = vape.Categories.Inventory:CreateModule({
 		Name = 'AutoBuy',
 		Function = function(callback)
@@ -1078,14 +1078,14 @@ run(function()
 				AutoBuy:Clean(collectionService:GetInstanceAddedSignal('menu_opener'):Connect(function(obj)
 					NPCs[obj.Parent] = obj:GetAttribute('menu') == 'TeamUpgrades'
 				end))
-	
+
 				for _, obj in collectionService:GetTagged('menu_opener') do
 					NPCs[obj.Parent] = obj:GetAttribute('menu') == 'TeamUpgrades'
 				end
-	
+
 				repeat
 					local npc, shop, upgrades, newid = getShopNPC()
-	
+
 					if npc and npctick <= tick() then
 						local currencytable = table.clone(bd.Entity.LocalEntity.Inventory)
 						for _, tab in Callbacks do
@@ -1095,7 +1095,7 @@ run(function()
 						end
 						npctick = tick() + 0.4
 					end
-	
+
 					task.wait(0.1)
 				until not AutoBuy.Enabled
 			else

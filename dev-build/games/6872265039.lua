@@ -72,7 +72,7 @@ end
 run(function()
 	local Sprint
 	local old
-	
+
 	Sprint = vape.Categories.Combat:CreateModule({
 		Name = 'Sprint',
 		Function = function(callback)
@@ -98,7 +98,7 @@ end)
 
 run(function()
 	local AutoGamble
-	
+
 	AutoGamble = vape.Categories.World:CreateModule({
 		Name = 'AutoGamble',
 		Function = function(callback)
@@ -109,7 +109,7 @@ run(function()
 						notif('AutoGamble', 'Won '..tab.displayName, 5)
 					end
 				end))
-	
+
 				repeat
 					if not bedwars.CrateAltarController.activeCrates[1] then
 						for _, v in bedwars.Store:getState().Consumable.inventory do

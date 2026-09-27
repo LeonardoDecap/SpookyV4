@@ -682,7 +682,7 @@ end
 
 run(function()
 	local Reach
-	
+
 	Reach = vape.Categories.Combat:CreateModule({
 		Name = 'Reach',
 		Function = function(callback)
@@ -718,7 +718,7 @@ run(function()
 	local CircleFilled
 	local CircleObject
 	local old
-	
+
 	local function Hook(...)
 		if debug.info(4, 's'):find('Gun') then
 			local ent = entitylib.EntityMouse({
@@ -727,16 +727,16 @@ run(function()
 				Players = Target.Players.Enabled,
 				NPCs = Target.NPCs.Enabled
 			})
-	
+
 			if ent then
 				targetinfo.Targets[ent] = tick() + 1
 				return CFrame.lookAt(gameCamera.CFrame.Position, ent.Head.Position).LookVector
 			end
 		end
-	
+
 		return old(...)
 	end
-	
+
 	SilentAim = vape.Categories.Combat:CreateModule({
 		Name = 'SilentAim',
 		Function = function(callback)
@@ -744,12 +744,12 @@ run(function()
 				old = hookfunction(redline.ShootFunction, function(...)
 					return Hook(...)
 				end)
-	
+
 				repeat
 					if CircleObject then
 						CircleObject.Position = inputService:GetMouseLocation()
 					end
-	
+
 					task.wait()
 				until not SilentAim.Enabled
 			else
@@ -854,7 +854,7 @@ run(function()
 	local anims = {
 		[replicatedStorage.Assets.Animations:FindFirstChild('3P_Parry', true).AnimationId] = true
 	}
-	
+
 	AntiParry = vape.Categories.Blatant:CreateModule({
 		Name = 'AntiParry',
 		Function = function(callback)
@@ -869,20 +869,20 @@ run(function()
 								for _, hit in results do
 									local char = hit:FindFirstAncestorWhichIsA('Model')
 									local animator = char and char:FindFirstChild('Animator', true)
-	
+
 									if animator and animator:IsA('Animator') then
 										for _, track in animator:GetPlayingAnimationTracks() do
 											if track.IsPlaying and anims[track.Animation.AnimationId] then
 												task.spawn(function()
 													notif('AntiParry', 'Parry found, blocking hit.', 1)
 												end)
-	
+
 												return true
 											end
 										end
 									end
 								end
-	
+
 								break
 							end
 						end
@@ -898,13 +898,13 @@ end)
 
 run(function()
 	local AutoParry
-	
+
 	AutoParry = vape.Categories.Blatant:CreateModule({
 		Name = 'AutoParry',
 		Function = function(callback)
 			if callback then
 				local cooldown = os.clock()
-	
+
 				repeat
 					if cooldown < os.clock() then
 						local doParry
@@ -914,28 +914,28 @@ run(function()
 								local targetPos = (((i:FindFirstChild('Head') and i.Head.Position or i.PrimaryPart and i.PrimaryPart.Position or i:GetPivot().Position) - localPos) * Vector3.new(1, 0, 1)).Unit
 								local diff = 1 - (workspace.CurrentCamera.CFrame.LookVector * Vector3.new(1, 0, 1)).Unit:Dot(targetPos)
 								local timediff = (v.expected_shot_time - os.clock())
-	
+
 								if math.abs(diff) <= v.parry_range and timediff < 0.2 and timediff > 0 and v.indicator_ui.Visible then
 									doParry = true
 								end
 							elseif v.indicator_type == 'timing_only' and playersService.NumPlayers <= 2 then
 								local timediff = (v.expected_shot_time - os.clock())
-	
+
 								if timediff < 0 and timediff > -0.2 and v.indicator_ui.Visible then
 									doParry = true
 								end
 							end
 						end
-	
+
 						if doParry then
 							cooldown = os.clock() + 0.2
-	
+
 							task.spawn(function()
 								redline.ActionFunction(redline[redline.ActionController], 'PARRY').Pressed:Fire()
 							end)
 						end
 					end
-	
+
 					task.wait(0.05)
 				until not AutoParry.Enabled
 			end
@@ -1011,7 +1011,7 @@ end)
 run(function()
 	local HighJump
 	local Value
-	
+
 	HighJump = vape.Categories.Blatant:CreateModule({
 		Name = 'HighJump',
 		Function = function(callback)
@@ -1038,7 +1038,7 @@ end)
 
 run(function()
 	local InfiniteDash
-	
+
 	InfiniteDash = vape.Categories.Blatant:CreateModule({
 		Name = 'InfiniteDash',
 		Function = function(callback)
@@ -1073,7 +1073,7 @@ run(function()
 	local anims = {
 		[replicatedStorage.Assets.Animations:FindFirstChild('3P_Parry', true).AnimationId] = true
 	}
-	
+
 	local function getTarget()
 		local selfpos = entitylib.isAlive and entitylib.character.RootPart.Position or Vector3.zero
 		local localfacing = gameCamera.CFrame.LookVector * Vector3.new(1, 0, 1)
@@ -1083,18 +1083,18 @@ run(function()
 			Players = Targets.Players.Enabled,
 			NPCs = Targets.NPCs.Enabled
 		})
-	
+
 		if ent then
 			local delta = (ent.RootPart.Position - selfpos)
 			local angle = math.acos(localfacing:Dot((delta * Vector3.new(1, 0, 1)).Unit))
 			if angle > (math.rad(AngleSlider.Value) / 2) then
 				return
 			end
-	
+
 			return ent
 		end
 	end
-	
+
 	local function shouldAttack(ent)
 		if playersService.NumPlayers <= 2 then
 			for i, v in next, getIndicators() do
@@ -1106,7 +1106,7 @@ run(function()
 				end
 			end
 		end
-	
+
 		local animator = ent.Humanoid:FindFirstChildWhichIsA('Animator')
 		if animator then
 			for _, track in animator:GetPlayingAnimationTracks() do
@@ -1115,17 +1115,17 @@ run(function()
 				end
 			end
 		end
-	
+
 		local origin = CFrame.lookAt(entitylib.character.RootPart.Position + Vector3.new(0, 2, 0), ent.RootPart.Position)
 		for _, box in redline_boxes do
 			if #castHitbox(box.data, origin) > 0 then
 				return true
 			end
 		end
-	
+
 		return false
 	end
-	
+
 	Killaura = vape.Categories.Blatant:CreateModule({
 		Name = 'Killaura',
 		Function = function(callback)
@@ -1134,7 +1134,7 @@ run(function()
 					local self = args[1]
 					if self and rawget(self, 'Name') == redline.AttackPacket and typeof(args[5]) == 'Vector3' then
 						local ent = getTarget()
-	
+
 						if ent then
 							local origin = CFrame.lookAt(entitylib.character.RootPart.Position + Vector3.new(0, 2, 0), ent.Hitbox.Position)
 							for _, box in redline_boxes do
@@ -1146,18 +1146,18 @@ run(function()
 						end
 					end
 				end, 1)
-	
+
 				repeat
 					local attacked = {}
 					if game.PlaceId ~= 94987506187454 then
 						local ent = getTarget()
-	
+
 						if ent and shouldAttack(ent) then
 							table.insert(attacked, {
 								Entity = ent,
 								Check = BoxAttackColor
 							})
-	
+
 							targetinfo.Targets[ent] = tick() + 1
 							if AutoSwing.Enabled then
 								task.spawn(function()
@@ -1166,7 +1166,7 @@ run(function()
 							end
 						end
 					end
-	
+
 					for i, v in Boxes do
 						v.Adornee = attacked[i] and attacked[i].Entity.RootPart or nil
 						if v.Adornee then
@@ -1174,21 +1174,21 @@ run(function()
 							v.Transparency = 1 - attacked[i].Check.Opacity
 						end
 					end
-	
+
 					for i, v in Particles do
 						v.Position = attacked[i] and attacked[i].Entity.RootPart.Position or Vector3.new(9e9, 9e9, 9e9)
 						v.Parent = attacked[i] and gameCamera or nil
 					end
-	
+
 					task.wait(0.016)
 				until not Killaura.Enabled
 			else
 				SendHook:Remove('Killaura')
-	
+
 				for _, v in Boxes do
 					v.Adornee = nil
 				end
-	
+
 				for _, v in Particles do
 					v.Parent = nil
 				end
@@ -1342,7 +1342,7 @@ end)
 
 run(function()
 	local AutoQueue
-	
+
 	AutoQueue = vape.Categories.Utility:CreateModule({
 		Name = 'AutoQueue',
 		Function = function(callback)
@@ -1362,21 +1362,21 @@ run(function()
 	local AutoToxic
 	local GG
 	local Toggles, Lists, Cloned, Presets = {}, {}, {}, {}
-	
+
 	local function sendMessage(name, obj, default)
 		local message = default
 		if #Lists[name].ListEnabled > 0 then
 			if #Cloned[name] <= 0 then
 				Cloned[name] = table.clone(Lists[name].ListEnabled)
 			end
-	
+
 			local entry = Random.new():NextInteger(1, #Cloned[name])
 			message = Cloned[name][entry]
 			table.remove(Cloned[name], entry)
 		end
-	
+
 		if not message then return end
-	
+
 		message = message and message:gsub('<obj>', obj or '') or ''
 		if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
 			if textChatService:CanUserChatAsync(lplr.UserId) then
@@ -1388,7 +1388,7 @@ run(function()
 			replicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(message, 'All')
 		end
 	end
-	
+
 	AutoToxic = vape.Categories.Utility:CreateModule({
 		Name = 'AutoToxic',
 		Function = function(callback)
@@ -1405,7 +1405,7 @@ run(function()
 							replicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer('gg', 'All')
 						end
 					end
-	
+
 					if won then
 						if Toggles.Win.Enabled then
 							sendMessage('Win', nil, 'yall garbage')
@@ -1439,7 +1439,7 @@ run(function()
 			end
 		})
 	end
-	
+
 	pcall(function()
 		for _, group in textChatService:GetPresetsAsync().categoryGroups do
 			for _, category in group.categories do
@@ -1457,7 +1457,7 @@ run(function()
 	local Volume
 	local PitchShift
 	local old, sounds = nil, {}
-	
+
 	HitSound = vape.Legit:CreateModule({
 		Name = 'HitSound',
 		Function = function(callback)
@@ -1505,7 +1505,7 @@ run(function()
 	local Volume
 	local PitchShift
 	local old, sounds = nil, {}
-	
+
 	KillSound = vape.Legit:CreateModule({
 		Name = 'KillSound',
 		Function = function(callback)

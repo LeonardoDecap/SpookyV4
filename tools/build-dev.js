@@ -35,4 +35,18 @@ for (const game of fs.readdirSync(path.join(source, 'games'))) {
 		}
 	}
 }
+// Keep generated Lua identical across Windows and Linux checkouts and avoid
+// indentation-only lines introduced by the upstream bundler helpers.
+function normalizeLua(folder) {
+	for (const name of fs.readdirSync(folder)) {
+		const file = path.join(folder, name);
+		if (fs.statSync(file).isDirectory()) {
+			normalizeLua(file);
+		} else if (name.endsWith('.lua')) {
+			const data = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n').replace(/[ \t]+$/gm, '');
+			fs.writeFileSync(file, data);
+		}
+	}
+}
+normalizeLua(output);
 console.log('SpookyV4 dev-build complete');
