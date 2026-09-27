@@ -7194,7 +7194,7 @@ run(function()
 			elseif Clear.Enabled then
 				local newslot = findInHotbar(v)
 				if newslot then
-				   	dispatch({
+					dispatch({
 						type = 'InventoryRemoveFromHotbar',
 						slot = newslot
 					})

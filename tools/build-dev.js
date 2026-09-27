@@ -43,7 +43,10 @@ function normalizeLua(folder) {
 		if (fs.statSync(file).isDirectory()) {
 			normalizeLua(file);
 		} else if (name.endsWith('.lua')) {
-			const data = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n').replace(/[ \t]+$/gm, '');
+			const data = fs.readFileSync(file, 'utf8')
+				.replace(/\r\n/g, '\n')
+				.replace(/[ \t]+$/gm, '')
+				.replace(/^[ \t]+/gm, (indent) => indent.replace(/ +\t/g, '\t'));
 			fs.writeFileSync(file, data);
 		}
 	}
