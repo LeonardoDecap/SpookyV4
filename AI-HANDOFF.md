@@ -9,7 +9,7 @@
 - Initial upstream commit: `489962b90131b0de9fc34518bf43819f68a4aa08`
 - Status: repository infrastructure prepared; Roblox runtime and BedWars compatibility **not verified**.
 
-SpookyV4 was intentionally started fresh from stock Vape V4. It does not depend on the previous LeoV4 workspace or its changes. No broad BedWars compatibility work has been completed. In particular, the stock BedWars lobby and match `base.lua` files still include deliberate `Kick`/`Shutdown` blocks. Their presence is documented, not repaired in this setup task.
+SpookyV4 was intentionally started fresh from stock Vape V4. It does not depend on the previous LeoV4 workspace or its changes. No broad BedWars compatibility work has been completed. The deliberate `Kick`/`Shutdown` blocks inherited from stock Vape were removed from the BedWars lobby and match `base.lua` files after a user reported the exact kick message. This narrow change has not been runtime-tested; other compatibility failures may remain.
 
 ## Branch and checkpoint policy
 
@@ -62,7 +62,7 @@ BedWars source is under `src/games/bedwars/`:
 - Kit-related source: `6872274481 - game/Utility/AutoKit.lua`, `Legit/CleanKit.lua`, `Render/KitESP.lua`, and kit references in match `base.lua`.
 - Universal modules: `src/games/universal - base/`, assembled as `dev-build/games/universal.lua` and loaded before a place bundle.
 
-Generated match and lobby files are `dev-build/games/6872274481.lua` and `dev-build/games/6872265039.lua`. Edit source, then rebuild. The stock BedWars files contain deliberate shutdown logic; do not infer compatibility from a successful loader download.
+Generated match and lobby files are `dev-build/games/6872274481.lua` and `dev-build/games/6872265039.lua`. Edit source, then rebuild. The inherited shutdown blocks have been removed from both. Do not infer broader compatibility from a successful loader download or the absence of that kick.
 
 ## First investigation for the next developer
 

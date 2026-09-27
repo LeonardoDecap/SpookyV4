@@ -12,4 +12,4 @@ DEV command:
 loadstring(game:HttpGet("https://raw.githubusercontent.com/LeonardoDecap/SpookyV4/dev/DevMainScript.lua", true))()
 ```
 
-The stock BedWars source still contains deliberate lobby/match shutdown blocks. Runtime compatibility has not been verified. The exact file map and loader flow are in `AI-HANDOFF.md`.
+The inherited BedWars lobby/match shutdown blocks were removed after a reported kick. Runtime compatibility has not been verified. The exact file map and loader flow are in `AI-HANDOFF.md`.
