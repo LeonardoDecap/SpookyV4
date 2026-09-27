@@ -87,7 +87,7 @@ do
 			createDownloader(path)
 
 			local success, data = pcall(function()
-				return game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeCompiled/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
+				return game:HttpGet('https://raw.githubusercontent.com/LeonardoDecap/SpookyV4/'..readfile('newvape/profiles/commit.txt')..'/dev-build/'..select(1, path:gsub('newvape/', '')), true)
 			end)
 
 			if not success or data == '404: Not Found' then
