@@ -38,28 +38,51 @@ run(function()
 	end
 	vape:Clean(restoreAnimationUpvalues)
 	local AttackRemote
+	local diagTimes = {}
+	local function combatDiag(stage, ...)
+		local now = tick()
+		if now - (diagTimes[stage] or -math.huge) < 5 then return end
+		diagTimes[stage] = now
+		print('[SpookyV4 CombatDiag] Killaura', stage, ...)
+	end
 
 	local function getAttackData()
 		if Mouse.Enabled then
-			if not inputService:IsMouseButtonPressed(0) then return false end
+			if not inputService:IsMouseButtonPressed(0) then
+				combatDiag('mouse gate')
+				return false
+			end
 		end
 
 		if GUI.Enabled then
-			if bedwars.AppController:isLayerOpen(bedwars.UILayers.MAIN) then return false end
+			if bedwars.AppController:isLayerOpen(bedwars.UILayers.MAIN) then
+				combatDiag('GUI gate')
+				return false
+			end
 		end
 
 		local sword = Limit.Enabled and store.hand or store.tools.sword
-		if not sword or not sword.tool then return false end
+		if not sword or not sword.tool then
+			combatDiag('no sword', Limit.Enabled, store.hand and store.hand.toolType)
+			return false
+		end
 
 		local meta = bedwars.ItemMeta[sword.tool.Name]
 		if Limit.Enabled then
-			if store.hand.toolType ~= 'sword' or bedwars.DaoController.chargingMaid then return false end
+			if store.hand.toolType ~= 'sword' or bedwars.DaoController.chargingMaid then
+				combatDiag('hand gate', store.hand.toolType, typeof(bedwars.DaoController.chargingMaid), tostring(bedwars.DaoController.chargingMaid))
+				return false
+			end
 		end
 
 		if LegitAura.Enabled then
-			if (tick() - bedwars.SwordController.lastSwing) > 0.2 then return false end
+			if (tick() - bedwars.SwordController.lastSwing) > 0.2 then
+				combatDiag('legit swing gate')
+				return false
+			end
 		end
 
+		combatDiag('eligible', sword.tool.Name, meta ~= nil, meta and meta.sword ~= nil, Limit.Enabled, typeof(bedwars.DaoController.chargingMaid), tostring(bedwars.DaoController.chargingMaid))
 		return sword, meta
 	end
 
@@ -67,9 +90,13 @@ run(function()
 		Name = 'Killaura',
 		Function = function(callback)
 			if callback then
+				table.clear(diagTimes)
+				combatDiag('enabled')
 				restoreAnimationUpvalues()
+				combatDiag('resolving remote', remotes.AttackEntity)
 				local remote = bedwars.Client:Get(remotes.AttackEntity)
 				AttackRemote = remote and remote.instance
+				combatDiag('remote resolved', AttackRemote ~= nil, typeof(AttackRemote))
 				if not AttackRemote then error('[SpookyV4 Killaura] AttackEntity remote unavailable') end
 				if inputService.TouchEnabled then
 					pcall(function()
@@ -157,8 +184,10 @@ run(function()
 							Limit = MaxTargets.Value,
 							Sort = sortmethods[Sort.Value]
 						})
+						combatDiag('target count', #plrs, entitylib.isAlive)
 
 						if #plrs > 0 then
+							combatDiag('switch item', sword.tool.Name)
 							switchItem(sword.tool, 0)
 							local selfpos = entitylib.character.RootPart.Position
 							local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
@@ -166,7 +195,10 @@ run(function()
 							for _, v in plrs do
 								local delta = (v.RootPart.Position - selfpos)
 								local angle = math.acos(localfacing:Dot((delta * Vector3.new(1, 0, 1)).Unit))
-								if angle > (math.rad(AngleSlider.Value) / 2) then continue end
+								if angle > (math.rad(AngleSlider.Value) / 2) then
+									combatDiag('angle gate', angle, AngleSlider.Value)
+									continue
+								end
 
 								table.insert(attacked, {
 									Entity = v,
@@ -190,7 +222,10 @@ run(function()
 									end
 								end
 
-								if delta.Magnitude > AttackRange.Value then continue end
+								if delta.Magnitude > AttackRange.Value then
+									combatDiag('range gate', delta.Magnitude, AttackRange.Value)
+									continue
+								end
 
 								local actualRoot = v.Character.PrimaryPart
 								if actualRoot then
@@ -200,6 +235,7 @@ run(function()
 									store.attackReach = (delta.Magnitude * 100) // 1 / 100
 									store.attackReachUpdate = tick() + 1
 
+									combatDiag('FireServer call', sword.tool.Name, v.Character.Name)
 									AttackRemote:FireServer({
 										weapon = sword.tool,
 										chargedAttack = {chargeRatio = 0},
@@ -213,6 +249,9 @@ run(function()
 											selfPosition = {value = pos}
 										}
 									})
+									combatDiag('FireServer returned')
+								else
+									combatDiag('target has no PrimaryPart', v.Character.Name)
 								end
 							end
 						end
