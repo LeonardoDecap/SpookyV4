@@ -2123,7 +2123,7 @@ run(function()
 				combatDiag('enabled')
 				restoreAnimationUpvalues()
 				local remote = bedwars.Client:Get(remotes.AttackEntity)
-				AttackRemote = remote and remote.instance
+				AttackRemote = remote
 				if AttackRemote then combatDiag('AttackRemote resolved') end
 				if not AttackRemote then error('[SpookyV4 Killaura] AttackEntity remote unavailable') end
 				if inputService.TouchEnabled then
@@ -2267,7 +2267,7 @@ run(function()
 									store.attackReachUpdate = tick() + 1
 
 									combatDiag('before FireServer')
-									AttackRemote:FireServer({
+									AttackRemote:SendToServer({
 										weapon = sword.tool,
 										chargedAttack = {chargeRatio = 0},
 										entityInstance = v.Character,
