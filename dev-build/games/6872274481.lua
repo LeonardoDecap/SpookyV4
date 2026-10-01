@@ -784,7 +784,7 @@ run(function()
 
 	for i, v in remoteNames do
 		local remote = dumpRemote(debug.getconstants(v))
-		if remote == '' then
+		if remote == '' and i ~= 'CannonAim' and i ~= 'KaliyahPunch' then
 			notif('Vape', 'Failed to grab remote ('..i..')', 10, 'alert')
 		end
 		remotes[i] = remote
@@ -2064,6 +2064,44 @@ run(function()
 		table.clear(animationPatches)
 	end
 	vape:Clean(restoreAnimationUpvalues)
+	local TokenBucket = {}
+	TokenBucket.__index = TokenBucket
+	function TokenBucket.new(capacity, refillRate)
+		local self = setmetatable({}, TokenBucket)
+		self.capacity = capacity
+		self.tokens = capacity
+		self.refillRate = refillRate
+		self.lastRefill = tick()
+		self.queue = {}
+		return self
+	end
+	function TokenBucket:Consume(amount, payload, callback)
+		local now = tick()
+		local delta = now - self.lastRefill
+		local tokensToAdd = delta * (self.refillRate + (math.random() * 2 - 1))
+		if tokensToAdd > 0 then
+			self.tokens = math.min(self.capacity, self.tokens + tokensToAdd)
+			self.lastRefill = now
+			while #self.queue > 0 do
+				local req = self.queue[1]
+				if self.tokens >= req.amount then
+					self.tokens = self.tokens - req.amount
+					table.remove(self.queue, 1)
+					task.spawn(req.callback, req.payload)
+				else break end
+			end
+		end
+		if self.tokens >= amount then
+			self.tokens = self.tokens - amount
+			task.spawn(callback, payload)
+			return true
+		else
+			table.insert(self.queue, {amount = amount, payload = payload, callback = callback})
+			return false
+		end
+	end
+	local attackLimiter = TokenBucket.new(12, 10.5)
+
 	local AttackRemote
 	local diagTimes = {}
 	local diagSeen = {}
@@ -2266,7 +2304,7 @@ run(function()
 									store.attackReachUpdate = tick() + 1
 
 									combatDiag('before FireServer')
-									AttackRemote:SendToServer({
+									attackLimiter:Consume(1, {
 										weapon = sword.tool,
 										chargedAttack = {chargeRatio = 0},
 										entityInstance = v.Character,
@@ -2278,8 +2316,10 @@ run(function()
 											targetPosition = {value = actualRoot.Position},
 											selfPosition = {value = pos}
 										}
-									})
-									combatDiag('FireServer returned')
+									}, function(payload)
+										AttackRemote:SendToServer(payload)
+										combatDiag('FireServer returned')
+									end)
 								else
 									combatDiag('target has no PrimaryPart')
 								end
