@@ -2066,19 +2066,17 @@ run(function()
 	vape:Clean(restoreAnimationUpvalues)
 	local TokenBucket = {}
 	TokenBucket.__index = TokenBucket
-	function TokenBucket.new(capacity, refillRate)
+	function TokenBucket.new(capacity)
 		local self = setmetatable({}, TokenBucket)
 		self.capacity = capacity
 		self.tokens = capacity
-		self.refillRate = refillRate
 		self.lastRefill = tick()
-		self.queue = {}
 		return self
 	end
-	function TokenBucket:Consume(amount, payload, callback)
+	function TokenBucket:Consume(amount, refillRate, payload, callback)
 		local now = tick()
 		local delta = now - self.lastRefill
-		local tokensToAdd = delta * (self.refillRate + (math.random() * 2 - 1))
+		local tokensToAdd = delta * refillRate
 		if tokensToAdd > 0 then
 			self.tokens = math.min(self.capacity, self.tokens + tokensToAdd)
 			self.lastRefill = now
@@ -2090,7 +2088,8 @@ run(function()
 		end
 		return false
 	end
-	local attackLimiter = TokenBucket.new(12, 10.5)
+	-- Capacity 3 allows a fast burst when initially locking on, but sustains at native weapon speed.
+	local attackLimiter = TokenBucket.new(3)
 
 	local AttackRemote
 	local diagTimes = {}
@@ -2269,6 +2268,7 @@ run(function()
 								if not Attacking then
 									Attacking = true
 									store.KillauraTarget = v
+									bedwars.SwordController.lastSwing = workspace:GetServerTimeNow()
 									if not Swing.Enabled and AnimDelay < tick() and not LegitAura.Enabled then
 										AnimDelay = tick() + (meta.sword.respectAttackSpeedForEffects and meta.sword.attackSpeed or 0.11)
 										bedwars.SwordController:playSwordEffect(meta, false)
@@ -2292,9 +2292,11 @@ run(function()
 									local pos = selfpos + dir * math.max(delta.Magnitude - 14.399, 0)
 									store.attackReach = (delta.Magnitude * 100) // 1 / 100
 									store.attackReachUpdate = tick() + 1
+									local weaponSpeed = meta.sword.attackSpeed or 0.3
+									local dynamicRefill = 1 / weaponSpeed
 
 									combatDiag('before FireServer')
-									attackLimiter:Consume(1, {
+									attackLimiter:Consume(1, dynamicRefill, {
 										weapon = sword.tool,
 										chargedAttack = {chargeRatio = 0},
 										entityInstance = v.Character,
