@@ -2219,7 +2219,7 @@ run(function()
 							end
 
 							if not started then
-								task.wait(1 / UpdateRate.Value)
+								task.wait(0.016)
 							end
 						until (not Killaura.Enabled) or (not Animation.Enabled)
 					end)
@@ -2268,7 +2268,7 @@ run(function()
 								if not Attacking then
 									Attacking = true
 									store.KillauraTarget = v
-									bedwars.SwordController.lastSwing = workspace:GetServerTimeNow()
+									bedwars.SwordController.lastSwing = os.clock()
 									if not Swing.Enabled and AnimDelay < tick() and not LegitAura.Enabled then
 										AnimDelay = tick() + (meta.sword.respectAttackSpeedForEffects and meta.sword.attackSpeed or 0.11)
 										bedwars.SwordController:playSwordEffect(meta, false)
@@ -2337,7 +2337,7 @@ run(function()
 						entitylib.character.RootPart.CFrame = CFrame.lookAt(entitylib.character.RootPart.Position, Vector3.new(vec.X, entitylib.character.RootPart.Position.Y + 0.001, vec.Z))
 					end
 
-					task.wait(#attacked > 0 and #attacked * 0.02 or 1 / UpdateRate.Value)
+					task.wait(#attacked > 0 and #attacked * 0.02 or 0.016)
 				until not Killaura.Enabled
 			else
 				restoreAnimationUpvalues()
