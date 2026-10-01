@@ -8,6 +8,7 @@ run(function()
 	local ChargeTime
 	local UpdateRate
 	local AngleSlider
+	local AttacksPerSecond
 	local MaxTargets
 	local Mouse
 	local Swing
@@ -266,7 +267,7 @@ run(function()
 					end
 
 					if canAttack and #attacked > 0 then
-						nextAttack = tick() + (meta.sword.respectAttackSpeedForEffects and meta.sword.attackSpeed or 0.11)
+						nextAttack = tick() + (1 / AttacksPerSecond.Value)
 					end
 
 					for i, v in Boxes do
@@ -352,6 +353,12 @@ run(function()
 		Min = 1,
 		Max = 360,
 		Default = 360
+	})
+	AttacksPerSecond = Killaura:CreateSlider({
+		Name = 'Attacks per second',
+		Min = 1,
+		Max = 25,
+		Default = 12
 	})
 	UpdateRate = Killaura:CreateSlider({
 		Name = 'Update rate',
