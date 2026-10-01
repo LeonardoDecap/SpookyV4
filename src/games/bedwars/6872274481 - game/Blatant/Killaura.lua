@@ -27,6 +27,7 @@ run(function()
 	local LegitAura
 	local Particles, Boxes = {}, {}
 	local anims, AnimDelay, AnimTween, armC0 = vape.Libraries.auraanims, tick()
+	local nextAttack = tick()
 	local animationPatches = {}
 	local function restoreAnimationUpvalues()
 		for _, patch in animationPatches do
@@ -173,6 +174,7 @@ run(function()
 
 				repeat
 					local attacked, sword, meta = {}, getAttackData()
+					local canAttack = tick() >= nextAttack
 					Attacking = false
 					store.KillauraTarget = nil
 					if sword then
@@ -235,30 +237,36 @@ run(function()
 								if actualRoot then
 									local dir = CFrame.lookAt(selfpos, actualRoot.Position).LookVector
 									local pos = selfpos + dir * math.max(delta.Magnitude - 14.399, 0)
-									bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
-									store.attackReach = (delta.Magnitude * 100) // 1 / 100
-									store.attackReachUpdate = tick() + 1
+									if canAttack then
+										bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
+										store.attackReach = (delta.Magnitude * 100) // 1 / 100
+										store.attackReachUpdate = tick() + 1
 
-									combatDiag('before FireServer')
-									AttackRemote:SendToServer({
-										weapon = sword.tool,
-										chargedAttack = {chargeRatio = 0},
-										entityInstance = v.Character,
-										validate = {
-											raycast = {
-												cameraPosition = {value = pos},
-												cursorDirection = {value = dir}
-											},
-											targetPosition = {value = actualRoot.Position},
-											selfPosition = {value = pos}
-										}
-									})
-									combatDiag('FireServer returned')
+										combatDiag('before FireServer')
+										AttackRemote:SendToServer({
+											weapon = sword.tool,
+											chargedAttack = {chargeRatio = 0},
+											entityInstance = v.Character,
+											validate = {
+												raycast = {
+													cameraPosition = {value = pos},
+													cursorDirection = {value = dir}
+												},
+												targetPosition = {value = actualRoot.Position},
+												selfPosition = {value = pos}
+											}
+										})
+										combatDiag('FireServer returned')
+									end
 								else
 									combatDiag('target has no PrimaryPart')
 								end
 							end
 						end
+					end
+
+					if canAttack and #attacked > 0 then
+						nextAttack = tick() + (meta.sword.respectAttackSpeedForEffects and meta.sword.attackSpeed or 0.11)
 					end
 
 					for i, v in Boxes do
