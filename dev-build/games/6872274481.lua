@@ -2082,23 +2082,13 @@ run(function()
 		if tokensToAdd > 0 then
 			self.tokens = math.min(self.capacity, self.tokens + tokensToAdd)
 			self.lastRefill = now
-			while #self.queue > 0 do
-				local req = self.queue[1]
-				if self.tokens >= req.amount then
-					self.tokens = self.tokens - req.amount
-					table.remove(self.queue, 1)
-					task.spawn(req.callback, req.payload)
-				else break end
-			end
 		end
 		if self.tokens >= amount then
 			self.tokens = self.tokens - amount
 			task.spawn(callback, payload)
 			return true
-		else
-			table.insert(self.queue, {amount = amount, payload = payload, callback = callback})
-			return false
 		end
+		return false
 	end
 	local attackLimiter = TokenBucket.new(12, 10.5)
 
